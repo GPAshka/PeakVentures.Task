@@ -25,8 +25,9 @@ app.MapGet("/track", (IMessagePublisher messagePublisher, HttpContext http, Canc
         var referer = http.Request.Headers.Referer;
         var userAgent = http.Request.Headers.UserAgent;
         var visitorIpAddress = http.Connection.RemoteIpAddress?.ToString();
-        
-        messagePublisher.PublishMessage(referer, userAgent, visitorIpAddress);
+
+        var message = messagePublisher.ConstructMessage(referer, userAgent, visitorIpAddress);
+        messagePublisher.PublishMessage(message);
         
         const string clearGif1X1 = "R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==";
         return Results.File(Convert.FromBase64String(clearGif1X1), "image/gif");
