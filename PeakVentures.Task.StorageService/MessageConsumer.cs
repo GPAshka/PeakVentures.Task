@@ -6,6 +6,10 @@ namespace PeakVentures.Task.StorageService;
 
 public interface IMessageConsumer
 {
+    /// <summary>
+    /// Reads messages from the message queue and writes them to the log file
+    /// </summary>
+    /// <returns></returns>
     System.Threading.Tasks.Task ReadMessages();
 }
 
@@ -16,7 +20,6 @@ public class MessageConsumer : IMessageConsumer, IDisposable
     
     private readonly IModel _model;
     private readonly IConnection _connection;
-    private readonly IConfiguration _configuration;
     private readonly ILogger<MessageConsumer> _logger;
     
     private readonly string _queueName;
@@ -24,13 +27,12 @@ public class MessageConsumer : IMessageConsumer, IDisposable
     
     public MessageConsumer(IConfiguration configuration, ILogger<MessageConsumer> logger)
     {
-        _configuration = configuration;
         _logger = logger;
         _connection = CreateChannel(configuration);
         _model = _connection.CreateModel();
         
         _queueName = configuration.GetValue<string>("MessageQueue:Queue") ?? DefaultQueueName;
-        _logFilePath = _configuration.GetValue<string>("FilePath") ?? DefaultLogFilePath;
+        _logFilePath = configuration.GetValue<string>("FilePath") ?? DefaultLogFilePath;
         
         _model.QueueDeclare(queue: _queueName,
             durable: false,
@@ -39,6 +41,7 @@ public class MessageConsumer : IMessageConsumer, IDisposable
             arguments: null);
     }
     
+    /// <inheritdoc/>
     public async System.Threading.Tasks.Task ReadMessages()
     {
         var consumer = new AsyncEventingBasicConsumer(_model);
