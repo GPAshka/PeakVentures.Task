@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Models;
 using PeakVentures.Task.PixelService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +34,11 @@ app.MapGet("/track", (IMessagePublisher messagePublisher, HttpContext http, Canc
         return Results.File(Convert.FromBase64String(clearGif1X1), "image/gif");
     })
     .WithName("TrackVisits")
-    .WithOpenApi();
+    .WithOpenApi(x => new OpenApiOperation(x)
+    {
+        Summary = "Tracks user visits",
+        Description = "Returns a transparent 1-pixel image in GIF format and collects the visitor information.",
+        Tags = new List<OpenApiTag> { new() { Name = "Peak Ventures" } }
+    });
 
 app.Run();
